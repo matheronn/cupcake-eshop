@@ -1,0 +1,31 @@
+<%- include('layouts/main', { title: 'Erro interno' }) %>
+
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="error-content">
+                <h1 class="display-1 text-danger fw-bold">500</h1>
+                <h2 class="mb-4">Erro interno do servidor</h2>
+                <p class="lead text-muted mb-4">
+                    Ocorreu um erro inesperado. Nossa equipe foi notificada e está trabalhando para resolver o problema.
+                </p>
+                
+                <% if (error && typeof error === 'object') { %>
+                    <div class="alert alert-warning text-start mt-4">
+                        <h6>Detalhes do erro (desenvolvimento):</h6>
+                        <pre class="mb-0"><%= error.stack || error.message %></pre>
+                    </div>
+                <% } %>
+                
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="/" class="btn btn-pink btn-lg">
+                        <i class="bi bi-house"></i> Voltar ao Início
+                    </a>
+                    <button onclick="location.reload()" class="btn btn-outline-pink btn-lg">
+                        <i class="bi bi-arrow-clockwise"></i> Tentar Novamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

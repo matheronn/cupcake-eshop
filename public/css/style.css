@@ -1,0 +1,182 @@
+/* Cores personalizadas para tema cupcake */
+:root {
+  --pink-primary: #e91e63;
+  --pink-secondary: #f8bbd9;
+  --pink-light: #fce4ec;
+  --brown-primary: #8d6e63;
+  --cream: #fff8e1;
+  --gold: #ffc107;
+}
+
+/* Navbar customizada */
+.bg-pink {
+  background: linear-gradient(135deg, var(--pink-primary), #ad1457) !important;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+/* Hero section */
+.hero {
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+}
+
+.bg-gradient-pink {
+  background: linear-gradient(135deg, var(--pink-primary), #ad1457, var(--brown-primary));
+}
+
+/* Botões personalizados */
+.btn-pink {
+  background-color: var(--pink-primary);
+  border-color: var(--pink-primary);
+  color: white;
+}
+
+.btn-pink:hover {
+  background-color: #ad1457;
+  border-color: #ad1457;
+  color: white;
+}
+
+.btn-outline-pink {
+  color: var(--pink-primary);
+  border-color: var(--pink-primary);
+}
+
+.btn-outline-pink:hover {
+  background-color: var(--pink-primary);
+  border-color: var(--pink-primary);
+  color: white;
+}
+
+/* Cards de produtos */
+.product-card {
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(233, 30, 99, 0.2) !important;
+}
+
+.product-card .card-img-top {
+  transition: transform 0.3s ease;
+  border-radius: 15px 15px 0 0;
+}
+
+.product-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+/* Feature boxes */
+.feature-box {
+  padding: 2rem 1rem;
+  transition: transform 0.3s ease;
+}
+
+.feature-box:hover {
+  transform: translateY(-10px);
+}
+
+.text-pink {
+  color: var(--pink-primary) !important;
+}
+
+/* Utilitários responsivos */
+@media (max-width: 768px) {
+  .hero {
+    min-height: 400px;
+    text-align: center;
+  }
+  
+  .hero .display-4 {
+    font-size: 2.5rem;
+  }
+  
+  .product-card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Animações suaves */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Footer */
+footer {
+  border-top: 3px solid var(--pink-light);
+}
+
+/* Alertas customizados */
+.alert {
+  border-radius: 10px;
+  margin: 0;
+}
+
+/* Loading spinner para formulários */
+.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Carrinho badge */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--gold);
+  color: #333;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Formulários */
+.form-control:focus {
+  border-color: var(--pink-primary);
+  box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+/* Background patterns para seções especiais */
+.pattern-dots {
+  background-image: radial-gradient(circle, var(--pink-light) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Hover effects para links */
+a {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* Status badges para pedidos */
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.status-pendente { background-color: #fff3cd; color: #856404; }
+.status-confirmado { background-color: #d1ecf1; color: #0c5460; }
+.status-em_preparo { background-color: #f8d7da; color: #721c24; }
+.status-enviado { background-color: #d4edda; color: #155724; }
+.status-entregue { background-color: #d1ecf1; color: #0c5460; }
+.status-cancelado { background-color: #f8d7da; color: #721c24; }

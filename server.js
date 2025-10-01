@@ -54,6 +54,7 @@ app.get('/', async (req, res) => {
     console.error('Erro ao carregar página inicial:', error);
     res.render('index', { 
       title: 'Cupcakes E-shop',
+      title: 'Cupcakes Deliciosos',
       products: [] 
     });
   }

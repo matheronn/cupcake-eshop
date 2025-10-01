@@ -6,7 +6,7 @@ const path = require('path');
 // Importar database e models
 const db = require('./models');
 
-// const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth');
 // const productRoutes = require('./routes/products');
 // const cartRoutes = require('./routes/cart');
 // const orderRoutes = require('./routes/orders');
@@ -47,20 +47,19 @@ app.get('/', async (req, res) => {
       include: [{ model: db.Category, as: 'Category' }]
     });
     res.render('index', { 
-      title: 'Cupcakes Deliciosos',
+      title: 'Cupcakes E-shop',
       products
     });
   } catch (error) {
     console.error('Erro ao carregar página inicial:', error);
     res.render('index', { 
-      title: 'Cupcakes Deliciosos',
+      title: 'Cupcakes E-shop',
       products: [] 
     });
   }
 });
 
-// Usar rotas (comentado até criarmos os arquivos)
-// app.use('/auth', authRoutes);
+app.use('/auth', authRoutes);
 // app.use('/products', productRoutes);
 // app.use('/cart', cartRoutes);
 // app.use('/orders', orderRoutes);

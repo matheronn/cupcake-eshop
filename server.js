@@ -3,14 +3,13 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-// Importar database e models
 const db = require('./models');
 
 const authRoutes = require('./routes/auth');
-// const productRoutes = require('./routes/products');
-// const cartRoutes = require('./routes/cart');
+const productRoutes = require('./routes/products');
+const cartRoutes = require('./routes/cart');
 // const orderRoutes = require('./routes/orders');
-// const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,7 +26,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, 
+    secure: false,
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
@@ -54,17 +53,16 @@ app.get('/', async (req, res) => {
     console.error('Erro ao carregar página inicial:', error);
     res.render('index', { 
       title: 'Cupcakes E-shop',
-      title: 'Cupcakes Deliciosos',
       products: [] 
     });
   }
 });
 
 app.use('/auth', authRoutes);
-// app.use('/products', productRoutes);
-// app.use('/cart', cartRoutes);
+app.use('/products', productRoutes);
+app.use('/cart', cartRoutes);
 // app.use('/orders', orderRoutes);
-// app.use('/admin', adminRoutes);
+app.use('/admin', adminRoutes);
 
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Página não encontrada' });

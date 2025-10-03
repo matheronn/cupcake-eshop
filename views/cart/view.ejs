@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Cupcakes Deliciosos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-pink sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-emoji-heart-eyes"></i> Cupcakes Deliciosos
+            </a>
+            
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Catálogo</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/cart">
+                            <i class="bi bi-cart"></i> Carrinho
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="mb-4">Meu Carrinho</h2>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success alert-dismissible fade show">
+                <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <% } %>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <% if (cartItems && cartItems.length > 0) { %>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Preço</th>
+                                            <th>Quantidade</th>
+                                            <th>Subtotal</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% cartItems.forEach(item => { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-pink bg-opacity-10 rounded p-2 me-3">
+                                                            <i class="bi bi-cup-straw text-pink fs-4"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0"><%= item.Product.nome %></h6>
+                                                            <small class="text-muted">
+                                                                Estoque: <%= item.Product.estoque %>
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="align-middle">
+                                                    R$ <%= parseFloat(item.Product.preco).toFixed(2).replace('.', ',') %>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <div class="input-group" style="width: 130px;">
+                                                        <button class="btn btn-outline-secondary btn-sm" 
+                                                                onclick="updateQuantity(<%= item.id %>, <%= item.quantidade - 1 %>)">
+                                                            <i class="bi bi-dash"></i>
+                                                        </button>
+                                                        <input type="number" class="form-control form-control-sm text-center" 
+                                                               value="<%= item.quantidade %>" 
+                                                               min="1" max="<%= item.Product.estoque %>"
+                                                               onchange="updateQuantity(<%= item.id %>, this.value)">
+                                                        <button class="btn btn-outline-secondary btn-sm" 
+                                                                onclick="updateQuantity(<%= item.id %>, <%= item.quantidade + 1 %>)">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td class="align-middle fw-bold">
+                                                    R$ <%= (parseFloat(item.Product.preco) * item.quantidade).toFixed(2).replace('.', ',') %>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <form action="/cart/remove/<%= item.id %>" method="POST" 
+                                                          onsubmit="return confirm('Remover este item?')">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <form action="/cart/clear" method="POST" 
+                              onsubmit="return confirm('Esvaziar todo o carrinho?')">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i> Esvaziar Carrinho
+                            </button>
+                        </form>
+                    </div>
+                <% } else { %>
+                    <div class="card border-0 shadow-sm text-center py-5">
+                        <div class="card-body">
+                            <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>
+                            <p class="text-muted mt-3 mb-4">Seu carrinho está vazio</p>
+                            <a href="/products" class="btn btn-pink">
+                                <i class="bi bi-search"></i> Continuar Comprando
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="col-lg-4">
+                <% if (cartItems && cartItems.length > 0) { %>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Resumo do Pedido</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>R$ <%= total.toFixed(2).replace('.', ',') %></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Taxa de entrega:</span>
+                                <span class="text-success">Grátis</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-4">
+                                <strong>Total:</strong>
+                                <strong class="text-success fs-4">
+                                    R$ <%= total.toFixed(2).replace('.', ',') %>
+                                </strong>
+                            </div>
+                            
+                            <a href="/orders/checkout" class="btn btn-pink w-100 mb-2">
+                                <i class="bi bi-credit-card"></i> Finalizar Pedido
+                            </a>
+                            <a href="/products" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-arrow-left"></i> Continuar Comprando
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function updateQuantity(itemId, quantidade) {
+            if (quantidade < 1) {
+                if (confirm('Remover este item do carrinho?')) {
+                    window.location.href = '/cart/remove/' + itemId;
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch('/cart/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ itemId, quantidade })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar quantidade');
+            }
+        }
+    </script>
+</body>
+</html>

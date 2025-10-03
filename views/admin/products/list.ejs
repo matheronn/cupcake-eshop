@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Cupcakes E-shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../../partials/admin-nav') %>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Gerenciar Produtos</h2>
+                    <a href="/admin/products/new" class="btn btn-pink">
+                        <i class="bi bi-plus-circle"></i> Novo Produto
+                    </a>
+                </div>
+
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <%= error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+                <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <%= success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <% if (products && products.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Categoria</th>
+                                            <th>Preço</th>
+                                            <th>Estoque</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% products.forEach(product => { %>
+                                            <tr>
+                                                <td>#<%= product.id %></td>
+                                                <td><%= product.nome %></td>
+                                                <td><%= product.Category ? product.Category.nome : 'Sem categoria' %></td>
+                                                <td>R$ <%= parseFloat(product.preco).toFixed(2).replace('.', ',') %></td>
+                                                <td>
+                                                    <span class="badge <%= product.estoque > 0 ? 'bg-success' : 'bg-danger' %>">
+                                                        <%= product.estoque %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge <%= product.ativo ? 'bg-success' : 'bg-secondary' %>">
+                                                        <%= product.ativo ? 'Ativo' : 'Inativo' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="/admin/products/edit/<%= product.id %>" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                onclick="confirmDelete(<%= product.id %>, '<%= product.nome %>')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-box-seam text-muted" style="font-size: 4rem;"></i>
+                                <p class="text-muted mt-3">Nenhum produto cadastrado</p>
+                                <a href="/admin/products/new" class="btn btn-pink">
+                                    <i class="bi bi-plus-circle"></i> Cadastrar Primeiro Produto
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja excluir o produto <strong id="productName"></strong>?
+                    <p class="text-danger mt-2 mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Esta ação não pode ser desfeita!
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="deleteForm" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Excluir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('productName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/products/delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html>

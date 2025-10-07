@@ -8,7 +8,7 @@ const db = require('./models');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
-// const orderRoutes = require('./routes/orders');
+const orderRoutes = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -26,7 +26,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false,
+    secure: false, 
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
@@ -41,9 +41,9 @@ app.get('/', async (req, res) => {
   try {
     const products = await db.Product.findAll({
       where: { ativo: true },
-      limit: 8,
+      limit: 4,
       order: [['createdAt', 'DESC']],
-      include: [{ model: db.Category, as: 'Category' }]
+      include: [{ model: db.Category }]
     });
     res.render('index', { 
       title: 'Cupcakes E-shop',
@@ -61,7 +61,7 @@ app.get('/', async (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
-// app.use('/orders', orderRoutes);
+app.use('/orders', orderRoutes);
 app.use('/admin', adminRoutes);
 
 app.use((req, res) => {

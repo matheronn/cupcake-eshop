@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container my-5">
+        <h2 class="mb-4">Finalizar Pedido</h2>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <form action="/orders/checkout" method="POST">
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Dados de Entrega</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Endereço *</label>
+                                <input type="text" class="form-control" name="endereco" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Complemento</label>
+                                    <input type="text" class="form-control" name="complemento">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CEP *</label>
+                                    <input type="text" class="form-control" name="cep" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label">Cidade *</label>
+                                    <input type="text" class="form-control" name="cidade" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Estado *</label>
+                                    <input type="text" class="form-control" name="estado" maxlength="2" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Forma de Pagamento</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="formaPagamento" value="cartao_credito" id="credito" required>
+                                <label class="form-check-label" for="credito">
+                                    <i class="bi bi-credit-card"></i> Cartão de Crédito
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="formaPagamento" value="cartao_debito" id="debito">
+                                <label class="form-check-label" for="debito">
+                                    <i class="bi bi-credit-card-2-front"></i> Cartão de Débito
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="formaPagamento" value="pix" id="pix">
+                                <label class="form-check-label" for="pix">
+                                    <i class="bi bi-qr-code"></i> PIX
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-pink btn-lg w-100">
+                        <i class="bi bi-check-circle"></i> Confirmar Pedido
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Resumo</h5>
+                    </div>
+                    <div class="card-body">
+                        <% cartItems.forEach(item => { %>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><%= item.quantidade %>x <%= item.Product.nome %></span>
+                                <span>R$ <%= (parseFloat(item.Product.preco) * item.quantidade).toFixed(2).replace('.', ',') %></span>
+                            </div>
+                        <% }); %>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <strong class="text-success">R$ <%= total.toFixed(2).replace('.', ',') %></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

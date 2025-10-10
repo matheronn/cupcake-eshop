@@ -46,13 +46,13 @@ app.get('/', async (req, res) => {
       include: [{ model: db.Category }]
     });
     res.render('index', { 
-      title: 'Cupcakes E-shop',
+      title: 'Cupcake E-shop',
       products
     });
   } catch (error) {
     console.error('Erro ao carregar página inicial:', error);
     res.render('index', { 
-      title: 'Cupcakes E-shop',
+      title: 'Cupcake E-shop',
       products: [] 
     });
   }

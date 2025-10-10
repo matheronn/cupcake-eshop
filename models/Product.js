@@ -41,7 +41,7 @@ module.exports = (sequelize) => {
     imagemUrl: {
       type: DataTypes.STRING(255),
       allowNull: true,
-      defaultValue: '/images/cupcake-default.jpg'
+      defaultValue: null
     },
     estoque: {
       type: DataTypes.INTEGER,

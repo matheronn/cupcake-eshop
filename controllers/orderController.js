@@ -54,14 +54,6 @@ exports.processOrder = async (req, res) => {
       return res.redirect('/cart?error=' + encodeURIComponent('Carrinho vazio'));
     }
     
-    for (const item of cartItems) {
-      if (item.Product.estoque < item.quantidade) {
-        await transaction.rollback();
-        return res.redirect('/orders/checkout?error=' + 
-          encodeURIComponent(`Produto ${item.Product.nome} sem estoque suficiente`));
-      }
-    }
-    
     let valorTotal = 0;
     cartItems.forEach(item => {
       valorTotal += parseFloat(item.Product.preco) * item.quantidade;
@@ -76,9 +68,9 @@ exports.processOrder = async (req, res) => {
       enderecoEntrega: enderecoCompleto,
       observacoes,
       status: 'pendente',
-      dataEntregaPrevista: new Date(Date.now() + 2 * 60 * 60 * 1000)
+      dataEntregaPrevista: new Date(Date.now() + 2 * 60 * 60 * 1000) 
     }, { transaction });
-    
+
     for (const item of cartItems) {
       await OrderItem.create({
         orderId: order.id,
@@ -88,7 +80,9 @@ exports.processOrder = async (req, res) => {
         subtotal: parseFloat(item.Product.preco) * item.quantidade
       }, { transaction });
       
-      await item.Product.reduzirEstoque(item.quantidade);
+      await item.Product.update({
+        estoque: item.Product.estoque - item.quantidade
+      }, { transaction });
     }
     
     await Cart.destroy({ where: { userId }, transaction });

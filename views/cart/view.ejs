@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Cupcake E-shop</title>
+    <title><%= title %> - Cupcakes E-shop</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
@@ -12,7 +12,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-pink sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/">
-                <i class="bi bi-emoji-heart-eyes"></i> Cupcake E-shop
+                <i class="bi bi-emoji-heart-eyes"></i> Cupcakes E-shop
             </a>
             
             <div class="collapse navbar-collapse">
@@ -93,15 +93,18 @@
                                                 <td class="align-middle">
                                                     <div class="input-group" style="width: 130px;">
                                                         <button class="btn btn-outline-secondary btn-sm" 
-                                                                onclick="updateQuantity(<%= item.id %>, <%= item.quantidade - 1 %>)">
+                                                                onclick="updateQuantity(<%= item.id %>, <%= item.quantidade - 1 %>)"
+                                                                id="btn-menos-<%= item.id %>">
                                                             <i class="bi bi-dash"></i>
                                                         </button>
                                                         <input type="number" class="form-control form-control-sm text-center" 
+                                                               id="qty-<%= item.id %>"
                                                                value="<%= item.quantidade %>" 
                                                                min="1" max="<%= item.Product.estoque %>"
                                                                onchange="updateQuantity(<%= item.id %>, this.value)">
                                                         <button class="btn btn-outline-secondary btn-sm" 
-                                                                onclick="updateQuantity(<%= item.id %>, <%= item.quantidade + 1 %>)">
+                                                                onclick="updateQuantity(<%= item.id %>, <%= item.quantidade + 1 %>)"
+                                                                id="btn-mais-<%= item.id %>">
                                                             <i class="bi bi-plus"></i>
                                                         </button>
                                                     </div>
@@ -110,12 +113,10 @@
                                                     R$ <%= (parseFloat(item.Product.preco) * item.quantidade).toFixed(2).replace('.', ',') %>
                                                 </td>
                                                 <td class="align-middle">
-                                                    <form action="/cart/remove/<%= item.id %>" method="POST" 
-                                                          onsubmit="return confirm('Remover este item?')">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                            onclick="removeItem(<%= item.id %>)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <% }); %>
@@ -126,12 +127,9 @@
                     </div>
 
                     <div class="mt-3">
-                        <form action="/cart/clear" method="POST" 
-                              onsubmit="return confirm('Esvaziar todo o carrinho?')">
-                            <button type="submit" class="btn btn-outline-danger">
-                                <i class="bi bi-trash"></i> Esvaziar Carrinho
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#clearCartModal">
+                            <i class="bi bi-trash"></i> Esvaziar Carrinho
+                        </button>
                     </div>
                 <% } else { %>
                     <div class="card border-0 shadow-sm text-center py-5">
@@ -182,41 +180,168 @@
         </div>
     </div>
 
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <div class="modal fade" id="clearCartModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Esvaziar Carrinho</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Tem certeza que deseja remover <strong>todos os itens</strong> do carrinho?</p>
+                    <p class="text-muted small mt-2">Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="POST" action="/cart/clear" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Esvaziar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        async function updateQuantity(itemId, quantidade) {
+        const debounceTimers = {};
+
+        function showToast(message, type = 'success') {
+          const toast = document.createElement('div');
+          const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+          toast.style.cssText = `
+            background-color: ${bgColor};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+          `;
+          const icon = type === 'success' ? '✓' : '✕';
+          toast.innerHTML = `<span style="font-weight: bold; font-size: 18px;">${icon}</span><span>${message}</span>`;
+          document.getElementById('toast-container').appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        }
+
+        function updateQuantity(itemId, quantidade) {
+            quantidade = parseInt(quantidade);
+            
             if (quantidade < 1) {
-                if (confirm('Remover este item do carrinho?')) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/cart/remove/' + itemId;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
+                showConfirmModal('Remover este item do carrinho?', () => {
+                    removeItem(itemId);
+                }, () => {
+                    location.reload();
+                });
                 return;
             }
 
-            try {
-                const response = await fetch('/cart/update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ itemId, quantidade })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert(data.message);
-                    location.reload();
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao atualizar quantidade');
+            if (debounceTimers[itemId]) {
+                clearTimeout(debounceTimers[itemId]);
             }
+
+            const btnMenos = document.getElementById(`btn-menos-${itemId}`);
+            const btnMais = document.getElementById(`btn-mais-${itemId}`);
+            const input = document.getElementById(`qty-${itemId}`);
+            
+            btnMenos.disabled = true;
+            btnMais.disabled = true;
+            input.disabled = true;
+
+            debounceTimers[itemId] = setTimeout(async () => {
+                try {
+                    const response = await fetch('/cart/update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ itemId, quantidade })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showToast(data.message, 'danger');
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    showToast('Erro ao atualizar quantidade', 'danger');
+                    location.reload();
+                } finally {
+                    btnMenos.disabled = false;
+                    btnMais.disabled = false;
+                    input.disabled = false;
+                }
+            }, 500);
+        }
+
+        function removeItem(itemId) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/cart/remove/' + itemId;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function clearCart() {
+            showConfirmModal('Deseja realmente esvaziar o carrinho?', () => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/cart/clear';
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+
+        function showConfirmModal(message, onConfirm, onCancel = null) {
+            const modalHTML = `
+                <div class="modal fade" id="confirmModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirmação</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                ${message}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCancel">Cancelar</button>
+                                <button type="button" class="btn btn-danger" id="btnConfirm">Confirmar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            let modalDiv = document.getElementById('confirmModal');
+            if (modalDiv) modalDiv.remove();
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            modalDiv = document.getElementById('confirmModal');
+
+            const modal = new bootstrap.Modal(modalDiv);
+
+            setTimeout(() => {
+                document.getElementById('btnConfirm').onclick = () => {
+                    modal.hide();
+                    onConfirm();
+                };
+
+                document.getElementById('btnCancel').onclick = () => {
+                    modal.hide();
+                    if (onCancel) onCancel();
+                };
+
+                modal.show();
+            }, 10);
         }
     </script>
 </body>

@@ -187,7 +187,11 @@
         async function updateQuantity(itemId, quantidade) {
             if (quantidade < 1) {
                 if (confirm('Remover este item do carrinho?')) {
-                    window.location.href = '/cart/remove/' + itemId;
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/cart/remove/' + itemId;
+                    document.body.appendChild(form);
+                    form.submit();
                 }
                 return;
             }

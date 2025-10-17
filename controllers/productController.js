@@ -56,17 +56,19 @@ exports.catalog = async (req, res) => {
 exports.details = async (req, res) => {
   try {
     const product = await Product.findOne({
-      where: { 
+      where: {
         id: req.params.id,
-        ativo: true 
+        ativo: true
       },
       include: [{ model: Category }]
     });
     
     if (!product) {
-      return res.redirect('/products?error=' + encodeURIComponent('Produto não encontrado'));
+      return res.status(404).render('404', {
+        title: 'Produto não encontrado'
+      });
     }
-    
+   
     const relatedProducts = await Product.findAll({
       where: {
         categoryId: product.categoryId,
@@ -75,15 +77,17 @@ exports.details = async (req, res) => {
       },
       limit: 4
     });
-    
+   
     res.render('products/details', {
       title: product.nome,
       product,
       relatedProducts
     });
-    
+   
   } catch (error) {
-    console.error('Erro ao carregar produto:', error);
-    res.redirect('/products?error=' + encodeURIComponent('Erro ao carregar produto'));
+    res.status(500).render('500', {
+      title: 'Erro ao carregar produto',
+      error
+    });
   }
 };

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-pink">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-emoji-heart-eyes"></i> Cupcakes E-shop</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/products">Catálogo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/cart">Carrinho</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/auth/logout">Sair</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-5">
+                <% if (product.imagemUrl && product.imagemUrl !== '/images/cupcake-default.jpg') { %>
+                    <img src="<%= product.imagemUrl %>" alt="<%= product.nome %>" class="img-fluid rounded">
+                <% } else { %>
+                    <div class="bg-gradient-pink d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+                        <i class="bi bi-cup-straw" style="font-size: 150px; color: white;"></i>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="col-md-7">
+                <h1><%= product.nome %></h1>
+                <p class="text-muted"><%= product.descricao %></p>
+
+                <h3 class="text-success mb-4">R$ <%= parseFloat(product.preco).toFixed(2).replace('.', ',') %></h3>
+
+                <% if (product.estoque > 0) { %>
+                    <div class="mb-3">
+                        <label class="form-label">Quantidade:</label>
+                        <input type="number" class="form-control" id="quantidade" value="1" min="1" max="<%= product.estoque %>">
+                    </div>
+                    <button class="btn btn-pink btn-lg w-100 mb-3" onclick="addToCart(<%= product.id %>)">
+                        <i class="bi bi-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
+                <% } else { %>
+                    <button class="btn btn-secondary btn-lg w-100" disabled>
+                        <i class="bi bi-x-circle"></i> Esgotado
+                    </button>
+                <% } %>
+
+                <a href="/products" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Catálogo
+                </a>
+
+                <hr>
+
+                <h5>Ingredientes:</h5>
+                <p><%= product.ingredientes || 'Ingredientes não especificados' %></p>
+
+                <h5>Estoque:</h5>
+                <p><%= product.estoque %> unidades disponíveis</p>
+            </div>
+        </div>
+
+        <% if (relatedProducts && relatedProducts.length > 0) { %>
+            <hr class="my-5">
+            <h3>Produtos Relacionados</h3>
+            <div class="row g-4 mt-3">
+                <% relatedProducts.forEach(rel => { %>
+                    <div class="col-md-3">
+                        <div class="card product-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><a href="/products/<%= rel.id %>"><%= rel.nome %></a></h5>
+                                <p class="text-success">R$ <%= parseFloat(rel.preco).toFixed(2).replace('.', ',') %></p>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showToast(message, type = 'success') {
+          let toastContainer = document.getElementById('toast-container');
+          if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.style.cssText = `
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              z-index: 9999;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            `;
+            document.body.appendChild(toastContainer);
+          }
+          const toast = document.createElement('div');
+          const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+          toast.style.cssText = `
+            background-color: ${bgColor};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 300px;
+          `;
+          toast.innerHTML = message;
+          toastContainer.appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function addToCart(productId) {
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+            try {
+                const response = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, quantidade })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message, 'danger');
+                }
+            } catch (error) {
+                showToast('Erro ao adicionar ao carrinho', 'danger');
+            }
+        }
+    </script>
+</body>
+</html>
